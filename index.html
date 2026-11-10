@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paygate | Unified Payment Platform & Operations</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+    body { font-family: 'Chakra Petch', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .active-nav {
+      background: rgba(16, 185, 129, 0.12);
+      color: #34d399;
+      border-color: rgba(52, 211, 153, 0.4);
+    }
+  </style>
+</head>
+<body class="bg-[#090d16] text-slate-100 min-h-screen flex flex-col selection:bg-emerald-500 selection:text-black">
+
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-6">
+        <a href="#/dashboard" class="flex items-center gap-3">
+          <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+            <i class="fa-solid fa-shield-halved text-lg"></i>
+          </div>
+          <div>
+            <span class="font-bold tracking-wider text-lg text-white">PAYGATE</span>
+            <span class="text-[10px] font-mono px-1.5 py-0.5 ml-1.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">ENTERPRISE</span>
+          </div>
+        </a>
+
+        <!-- Main Desktop Navigation -->
+        <nav class="hidden md:flex items-center gap-1">
+          <button onclick="navigate('dashboard')" id="nav-dashboard" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition border border-transparent flex items-center gap-2">
+            <i class="fa-solid fa-chart-pie"></i> แดชบอร์ด
+          </button>
+          <button onclick="navigate('transactions')" id="nav-transactions" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition border border-transparent flex items-center gap-2">
+            <i class="fa-solid fa-receipt"></i> ธุรกรรม & สลิป
+          </button>
+          <button onclick="navigate('checkout')" id="nav-checkout" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition border border-transparent flex items-center gap-2">
+            <i class="fa-solid fa-qrcode"></i> หน้าชำระเงิน (QR)
+          </button>
+          <button onclick="navigate('merchant')" id="nav-merchant" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition border border-transparent flex items-center gap-2">
+            <i class="fa-solid fa-store"></i> ร้านค้า & Settlement
+          </button>
+          <button onclick="navigate('developer')" id="nav-developer" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition border border-transparent flex items-center gap-2">
+            <i class="fa-solid fa-terminal"></i> API & Webhook
+          </button>
+          <button onclick="navigate('sitemap')" id="nav-sitemap" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition border border-transparent flex items-center gap-2">
+            <i class="fa-solid fa-sitemap"></i> Site Map
+          </button>
+        </nav>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-slate-400">Google Sheet:</span>
+          <span class="text-emerald-400 font-mono font-medium">Online</span>
+        </div>
+        <button onclick="openModal('createModal')" class="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-lg text-xs font-bold transition shadow-lg shadow-emerald-500/20 flex items-center gap-1.5">
+          <i class="fa-solid fa-plus"></i> เพิ่มรายการ
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT CONTAINER ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
+
+    <!-- ========== VIEW 1: DASHBOARD ========== -->
+    <section id="view-dashboard" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-white tracking-wide">Financial Overview</h1>
+          <p class="text-xs text-slate-400 mt-1">ภาพรวมการประมวลผลธุรกรรมและสถานะสภาพคล่องแบบ Real-time</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="fetchData()" class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-medium border border-slate-800 transition flex items-center gap-2">
+            <i class="fa-solid fa-arrows-rotate"></i> อัปเดตข้อมูล
+          </button>
+        </div>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">รอดำเนินการ (Pending)</div>
+          <div id="stat-pending" class="text-3xl font-bold text-amber-400 font-mono mt-2">0</div>
+          <span class="text-[11px] text-amber-500/80 mt-1 block">ต้องตรวจสอบสลิป</span>
+        </div>
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">อนุมัติแล้ว (Approved)</div>
+          <div id="stat-approved" class="text-3xl font-bold text-emerald-400 font-mono mt-2">0</div>
+          <span class="text-[11px] text-emerald-500/80 mt-1 block">เงินเข้าบัญชีสำเร็จ</span>
+        </div>
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">ปฏิเสธ / สลิปซ้ำ (Rejected)</div>
+          <div id="stat-rejected" class="text-3xl font-bold text-rose-400 font-mono mt-2">0</div>
+          <span class="text-[11px] text-rose-500/80 mt-1 block">ตัดยอดไม่สำเร็จ</span>
+        </div>
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">ยอดเงินรวมทั้งหมด (GMV)</div>
+          <div id="stat-total" class="text-3xl font-bold text-cyan-400 font-mono mt-2">฿0.00</div>
+          <span class="text-[11px] text-cyan-500/80 mt-1 block">THB Net Volume</span>
+        </div>
+      </div>
+
+      <!-- Quick Action / Operational Banner -->
+      <div class="bg-gradient-to-r from-emerald-950/40 via-slate-900 to-cyan-950/40 border border-emerald-500/20 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="space-y-1">
+          <div class="text-emerald-400 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-bolt"></i> Auto-Integration Active
+          </div>
+          <h2 class="text-lg font-bold text-white">ระบบเชื่อมต่อกับ Google Sheet และ Drive พร้อมใช้งาน</h2>
+          <p class="text-xs text-slate-400 max-w-2xl">ข้อมูลทุกคำสั่งซื้อ สลิป และการเปลี่ยนสถานะถูกซิงค์ตรงเข้า Google Sheet ทันที พร้อมระบบแจ้งเตือนอัตโนมัติ</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="navigate('transactions')" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold rounded-xl transition shadow-lg shadow-emerald-500/20">
+            ไปที่หน้าตรวจสอบสลิป <i class="fa-solid fa-arrow-right ml-1"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== VIEW 2: TRANSACTIONS & AUDIT ========== -->
+    <section id="view-transactions" class="space-y-6 hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-white tracking-wide">Transaction Ledger</h1>
+          <p class="text-xs text-slate-400 mt-1">ตรวจสอบรายการธุรกรรม ตรวจหลักฐานสลิป และอนุมัติยอดเงิน</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="fetchData()" class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-medium border border-slate-800 transition flex items-center gap-2">
+            <i class="fa-solid fa-arrows-rotate"></i> รีเฟรชข้อมูล
+          </button>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <div class="flex flex-1 gap-3 w-full sm:w-auto">
+          <input type="text" id="searchInput" oninput="renderTable()" placeholder="ค้นหา Transaction ID, ผู้ใช้, ธนาคาร..." class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-emerald-500 flex-1 w-full text-white" />
+          <select id="statusFilter" onchange="renderTable()" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 text-slate-300">
+            <option value="ALL">สถานะทั้งหมด</option>
+            <option value="Pending">รอดำเนินการ (Pending)</option>
+            <option value="Approved">อนุมัติแล้ว (Approved)</option>
+            <option value="Rejected">ปฏิเสธ (Rejected)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Table Section -->
+      <div class="bg-slate-900/70 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-950/80 text-slate-400 uppercase tracking-wider border-b border-slate-800 font-mono">
+              <tr>
+                <th class="py-3.5 px-4">TXN ID</th>
+                <th class="py-3.5 px-4">เวลาทำรายการ</th>
+                <th class="py-3.5 px-4">ผู้ทำรายการ / บัญชี</th>
+                <th class="py-3.5 px-4">ยอดชำระ</th>
+                <th class="py-3.5 px-4 text-center">หลักฐานสลิป</th>
+                <th class="py-3.5 px-4">สถานะ</th>
+                <th class="py-3.5 px-4 text-right">การกระทำ</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody" class="divide-y divide-slate-800/60"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== VIEW 3: CHECKOUT SIMULATOR (PROMPTPAY QR) ========== -->
+    <section id="view-checkout" class="space-y-6 hidden">
+      <div class="max-w-xl mx-auto">
+        <div class="text-center mb-6">
+          <h1 class="text-2xl font-bold text-white tracking-wide">Customer Checkout Experience</h1>
+          <p class="text-xs text-slate-400 mt-1">หน้าจอจำลองการชำระเงินสำหรับลูกค้า (Dynamic PromptPay QR + แนบสลิป)</p>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-6">
+          <!-- Order Summary Header -->
+          <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+            <div>
+              <span class="text-xs text-slate-400">เลขอ้างอิงคำสั่งซื้อ:</span>
+              <div id="checkout-order-id" class="font-mono font-bold text-sm text-white">INV-20261110-098</div>
+            </div>
+            <div class="text-right">
+              <span class="text-xs text-slate-400">ยอดที่ต้องชำระ:</span>
+              <div class="text-xl font-bold font-mono text-emerald-400">฿<span id="checkout-amount-display">500.00</span></div>
+            </div>
+          </div>
+
+          <!-- QR Code Container -->
+          <div class="bg-white rounded-2xl p-6 flex flex-col items-center justify-center max-w-[280px] mx-auto shadow-inner">
+            <div class="w-full flex justify-between items-center mb-3">
+              <span class="text-[10px] font-bold text-slate-800 tracking-wider">PROMPTPAY</span>
+              <span class="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-mono font-bold">TH QR</span>
+            </div>
+            <div id="qrcode" class="my-2 flex items-center justify-center"></div>
+            <p class="text-[10px] text-slate-500 mt-2 text-center">สแกนผ่านแอป Mobile Banking ได้ทุกธนาคาร</p>
+          </div>
+
+          <!-- Countdown Timer -->
+          <div class="text-center text-xs text-slate-400">
+            รหัส QR จะหมดอายุภายใน: <span id="checkout-timer" class="font-mono text-amber-400 font-bold">14:59</span> นาที
+          </div>
+
+          <!-- Slip Submission Form -->
+          <form onsubmit="handleCustomerUpload(event)" class="space-y-4 pt-4 border-t border-slate-800">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">ชื่อผู้โอน / รหัสลูกค้า</label>
+              <input type="text" id="cust_name" required placeholder="เช่น สมชาย ใจดี หรือ Customer#01" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">แนบไฟล์สลิปโอนเงิน</label>
+              <input type="file" id="cust_slip" accept="image/*" required class="w-full text-xs text-slate-400 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 cursor-pointer" />
+            </div>
+            <button type="submit" id="cust_submit_btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs transition shadow-lg shadow-emerald-500/20">
+              แจ้งโอนเงินทันที (Submit Payment)
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== VIEW 4: MERCHANT PORTAL & SETTLEMENT ========== -->
+    <section id="view-merchant" class="space-y-6 hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-white tracking-wide">Merchant Portal & Settlement</h1>
+          <p class="text-xs text-slate-400 mt-1">จัดการข้อมูลร้านค้า ตรวจสอบรอบการถอนเงิน และจัดการ API Credentials</p>
+        </div>
+        <button class="px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-semibold transition">
+          <i class="fa-solid fa-money-bill-transfer mr-1"></i> ขอถอนเงิน (Request Payout)
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+          <span class="text-xs text-slate-400">ยอดเงินพร้อมถอน (Available Balance)</span>
+          <div class="text-2xl font-bold font-mono text-white mt-1">฿48,950.00</div>
+          <span class="text-[11px] text-emerald-400 mt-1 block">รอบโอนถัดไป: ทุกวันเวลา 18:00 น.</span>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+          <span class="text-xs text-slate-400">ยอดเงินรอยืนยัน (On Hold)</span>
+          <div class="text-2xl font-bold font-mono text-amber-400 mt-1">฿1,500.00</div>
+          <span class="text-[11px] text-slate-500 mt-1 block">รอตรวจสอบความถูกต้องสลิป</span>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+          <span class="text-xs text-slate-400">ค่าธรรมเนียมธุรกรรม (Gateway Fee)</span>
+          <div class="text-2xl font-bold font-mono text-slate-300 mt-1">0.95%</div>
+          <span class="text-[11px] text-cyan-400 mt-1 block">Standard Merchant Rate</span>
+        </div>
+      </div>
+
+      <!-- Merchant API Keys -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+        <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+          <i class="fa-solid fa-key text-emerald-400"></i> API Credentials (Vercel Production)
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Public Key</label>
+            <div class="flex items-center gap-2">
+              <input type="text" readonly value="pk_live_9942a0e28f1190bc74" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none" />
+              <button onclick="navigator.clipboard.writeText('pk_live_9942a0e28f1190bc74'); alert('คัดลอก Public Key แล้ว!')" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs"><i class="fa-regular fa-copy"></i></button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Secret Key (Keep Secret)</label>
+            <div class="flex items-center gap-2">
+              <input type="password" readonly value="sk_live_338947f9104dbbe1a90c2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none" />
+              <button onclick="navigator.clipboard.writeText('sk_live_338947f9104dbbe1a90c2'); alert('คัดลอก Secret Key แล้ว!')" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs"><i class="fa-regular fa-copy"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== VIEW 5: DEVELOPER API & WEBHOOK ========== -->
+    <section id="view-developer" class="space-y-6 hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-white tracking-wide">Developer Sandbox & Webhooks</h1>
+          <p class="text-xs text-slate-400 mt-1">เครื่องมือจำลอง API และการส่ง Webhook Callback ตามมาตรฐาน PRD</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- API Endpoint Reference -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-code text-cyan-400"></i> RESTful API Quickstart
+          </h3>
+          <p class="text-xs text-slate-400">สร้างรายการชำระเงินผ่าน API เพื่อรับ Dynamic QR Code ทันที</p>
+
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 font-mono text-xs text-slate-300 overflow-x-auto">
+            <span class="text-emerald-400">POST</span> /api/v1/transactions<br />
+            <span class="text-slate-500">Host:</span> api.paygate.io<br />
+            <span class="text-slate-500">Authorization:</span> Bearer pk_live_9942a...<br /><br />
+            {<br />
+            &nbsp;&nbsp;<span class="text-cyan-400">"amount"</span>: <span class="text-amber-400">500.00</span>,<br />
+            &nbsp;&nbsp;<span class="text-cyan-400">"currency"</span>: <span class="text-emerald-400">"THB"</span>,<br />
+            &nbsp;&nbsp;<span class="text-cyan-400">"order_id"</span>: <span class="text-emerald-400">"ORDER_88921"</span>,<br />
+            &nbsp;&nbsp;<span class="text-cyan-400">"callback_url"</span>: <span class="text-emerald-400">"https://merchant.com/webhook"</span><br />
+            }
+          </div>
+        </div>
+
+        <!-- Webhook Simulator -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-satellite-dish text-emerald-400"></i> Webhook Event Dispatcher
+          </h3>
+          <p class="text-xs text-slate-400">ทดสอบยิง Webhook payload ไปยัง Server ร้านค้าของคุณ</p>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Target Webhook URL</label>
+            <input type="url" id="webhook_test_url" placeholder="https://yourdomain.com/api/payment-callback" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-500" />
+          </div>
+          <button onclick="simulateWebhook()" class="w-full py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl text-xs transition">
+            ส่งข้อมูลทดสอบ (Simulate Event: transaction.approved)
+          </button>
+          <div id="webhook_result" class="text-[11px] font-mono text-slate-400 hidden p-3 rounded-lg bg-slate-950 border border-slate-800"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== VIEW 6: VISUAL SITEMAP ARCHITECTURE ========== -->
+    <section id="view-sitemap" class="space-y-6 hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-white tracking-wide">System Site Map & Architecture</h1>
+          <p class="text-xs text-slate-400 mt-1">โครงสร้างเส้นทาง (Routing) และผังสถาปัตยกรรมทุกหน้าของ Paygate Platform</p>
+        </div>
+        <a href="/sitemap.xml" target="_blank" class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-mono border border-slate-800 transition flex items-center gap-2">
+          <i class="fa-solid fa-file-code"></i> sitemap.xml
+        </a>
+      </div>
+
+      <!-- Interactive Sitemap Tree -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Branch 1 -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+            <i class="fa-solid fa-globe"></i> 1. Public & Checkout
+          </div>
+          <p class="text-[11px] text-slate-400">โซนหน้าบ้านสำหรับลูกค้าชำระเงินและดูข้อมูลแพลตฟอร์ม</p>
+          <ul class="space-y-2 text-xs font-mono">
+            <li><button onclick="navigate('dashboard')" class="text-slate-300 hover:text-emerald-400 text-left">/ (Home & Status)</button></li>
+            <li><button onclick="navigate('checkout')" class="text-slate-300 hover:text-emerald-400 text-left">/checkout (PromptPay QR)</button></li>
+            <li><a href="/sitemap.xml" target="_blank" class="text-slate-500 hover:text-emerald-400">/sitemap.xml (SEO File)</a></li>
+          </ul>
+        </div>
+
+        <!-- Branch 2 -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex items-center gap-2 text-cyan-400 font-bold text-sm">
+            <i class="fa-solid fa-lock"></i> 2. Operations Admin
+          </div>
+          <p class="text-[11px] text-slate-400">แผงควบคุมหลังบ้าน ตรวจสอบและอนุมัติยอดเงิน</p>
+          <ul class="space-y-2 text-xs font-mono">
+            <li><button onclick="navigate('dashboard')" class="text-slate-300 hover:text-cyan-400 text-left">/admin/dashboard</button></li>
+            <li><button onclick="navigate('transactions')" class="text-slate-300 hover:text-cyan-400 text-left">/admin/transactions</button></li>
+            <li><span class="text-slate-500">/admin/reconcile (Audit)</span></li>
+          </ul>
+        </div>
+
+        <!-- Branch 3 -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex items-center gap-2 text-amber-400 font-bold text-sm">
+            <i class="fa-solid fa-briefcase"></i> 3. Merchant Portal
+          </div>
+          <p class="text-[11px] text-slate-400">ระบบบริหารร้านค้า ถอนเงิน และคีย์เชื่อมต่อ</p>
+          <ul class="space-y-2 text-xs font-mono">
+            <li><button onclick="navigate('merchant')" class="text-slate-300 hover:text-amber-400 text-left">/merchant/overview</button></li>
+            <li><button onclick="navigate('merchant')" class="text-slate-300 hover:text-amber-400 text-left">/merchant/api-keys</button></li>
+            <li><span class="text-slate-500">/merchant/settlement</span></li>
+          </ul>
+        </div>
+
+        <!-- Branch 4 -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex items-center gap-2 text-purple-400 font-bold text-sm">
+            <i class="fa-solid fa-terminal"></i> 4. Developer & API
+          </div>
+          <p class="text-[11px] text-slate-400">เอกสารคู่มือนักพัฒนาและการทดสอบ Webhook</p>
+          <ul class="space-y-2 text-xs font-mono">
+            <li><button onclick="navigate('developer')" class="text-slate-300 hover:text-purple-400 text-left">/docs/api (Reference)</button></li>
+            <li><button onclick="navigate('developer')" class="text-slate-300 hover:text-purple-400 text-left">/docs/webhooks (Tester)</button></li>
+            <li><span class="text-slate-500">/docs/sandbox</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= MODAL: VIEW SLIP ================= -->
+  <div id="slipModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm hidden px-4">
+    <div class="max-w-lg w-full bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden p-6 relative shadow-2xl">
+      <button onclick="closeModal('slipModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">&times;</button>
+      <h3 class="text-base font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-receipt text-emerald-400"></i> ตรวจสอบหลักฐานสลิป</h3>
+      <div class="rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center min-h-[350px] max-h-[500px]">
+        <img id="slipImagePreview" src="" alt="Slip" class="object-contain max-h-[480px] w-full" />
+      </div>
+      <div class="mt-4 flex justify-end">
+        <a id="slipOpenTab" href="#" target="_blank" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl border border-slate-700 transition">เปิดรูปเต็มจอ</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: CREATE TRANSACTION ================= -->
+  <div id="createModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm hidden px-4">
+    <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 relative shadow-2xl">
+      <button onclick="closeModal('createModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">&times;</button>
+      <h3 class="text-base font-bold mb-4 text-white flex items-center gap-2"><i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i> สร้างรายการธุรกรรมใหม่</h3>
+      
+      <form id="createForm" onsubmit="handleCreate(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">User / ลูกค้า</label>
+          <input type="text" id="new_user" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs focus:border-emerald-500 text-white" placeholder="User ID หรือ ชื่อลูกค้า">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">จำนวนเงิน (THB)</label>
+          <input type="number" step="0.01" id="new_amount" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs focus:border-emerald-500 text-white" placeholder="0.00">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">ธนาคาร / ช่องทาง</label>
+          <input type="text" id="new_bank" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs focus:border-emerald-500 text-white" placeholder="กสิกรไทย, PromptPay">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">อัปโหลดสลิป</label>
+          <input type="file" id="new_slip" accept="image/*" class="w-full text-xs text-slate-400 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700">
+        </div>
+        <div class="pt-2">
+          <button type="submit" id="createSubmitBtn" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs transition shadow-lg shadow-emerald-500/20">
+            บันทึกเข้า Google Sheet
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyTw6S3dCXZL79P0jFbRlvn_wLN-R9lEtVTsLpoYooXzjF5KF2EeE_WRyf-EFOMAf0P/exec";
+    let rawData = [];
+
+    // Routing Navigation
+    function navigate(viewName) {
+      const views = ['dashboard', 'transactions', 'checkout', 'merchant', 'developer', 'sitemap'];
+      views.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        const nav = document.getElementById('nav-' + v);
+        if (el) el.classList.add('hidden');
+        if (nav) nav.classList.remove('active-nav');
+      });
+
+      const target = document.getElementById('view-' + viewName);
+      const targetNav = document.getElementById('nav-' + viewName);
+      if (target) target.classList.remove('hidden');
+      if (targetNav) targetNav.classList.add('active-nav');
+
+      if (viewName === 'checkout') {
+        initQrCode();
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      navigate('dashboard');
+      fetchData();
+    });
+
+    async function fetchData() {
+      const tbody = document.getElementById("tableBody");
+      if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-500"><i class="fa-solid fa-spinner fa-spin"></i> กำลังดึงข้อมูลล่าสุดจาก Google Sheets...</td></tr>`;
+
+      try {
+        const res = await fetch(GAS_URL);
+        const json = await res.json();
+        rawData = json.data || [];
+        renderTable();
+      } catch (err) {
+        console.warn("Fetch fallback:", err);
+        rawData = [
+          {
+            rowIndex: 2,
+            id: "TXN100001",
+            timestamp: "2026-11-10 11:00:00",
+            user_id: "Demo Customer",
+            amount: 500,
+            bank_account: "KBank",
+            slip_url: "https://drive.google.com/",
+            status: "Pending",
+            note: "รายการทดสอบระบบ"
+          }
+        ];
+        renderTable();
+      }
+    }
+
+    function renderTable() {
+      const q = document.getElementById("searchInput") ? document.getElementById("searchInput").value.toLowerCase() : "";
+      const st = document.getElementById("statusFilter") ? document.getElementById("statusFilter").value : "ALL";
+      const tbody = document.getElementById("tableBody");
+
+      const filtered = rawData.filter(item => {
+        const matchSearch = String(item.id || "").toLowerCase().includes(q) ||
+                            String(item.user_id || "").toLowerCase().includes(q) ||
+                            String(item.bank_account || "").toLowerCase().includes(q);
+        const matchStatus = st === "ALL" || item.status === st;
+        return matchSearch && matchStatus;
+      });
+
+      const statP = document.getElementById("stat-pending");
+      const statA = document.getElementById("stat-approved");
+      const statR = document.getElementById("stat-rejected");
+      const statT = document.getElementById("stat-total");
+
+      if (statP) statP.innerText = rawData.filter(x => x.status === "Pending").length;
+      if (statA) statA.innerText = rawData.filter(x => x.status === "Approved").length;
+      if (statR) statR.innerText = rawData.filter(x => x.status === "Rejected").length;
+      const total = rawData.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+      if (statT) statT.innerText = "฿" + total.toLocaleString(undefined, { minimumFractionDigits: 2 });
+
+      if (!tbody) return;
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-500">ไม่พบรายการธุรกรรม</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(row => {
+        let badgeColor = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
+        if (row.status === "Approved") badgeColor = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+        if (row.status === "Rejected") badgeColor = "bg-rose-500/10 text-rose-400 border border-rose-500/20";
+
+        const slipBtn = row.slip_url && !row.slip_url.startsWith("UPLOAD_FAILED") && row.slip_url.length > 5
+          ? `<button onclick="viewSlip('${row.slip_url}')" class="px-2.5 py-1 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-lg text-xs inline-flex items-center gap-1.5 transition"><i class="fa-regular fa-image"></i> ดูสลิป</button>`
+          : `<span class="text-slate-600 text-xs italic">ไม่มี</span>`;
+
+        return `
+          <tr class="hover:bg-slate-800/30 transition">
+            <td class="py-3 px-4 font-mono text-xs text-slate-300">${row.id}</td>
+            <td class="py-3 px-4 text-xs text-slate-400 font-mono">${row.timestamp}</td>
+            <td class="py-3 px-4">
+              <div class="font-medium text-slate-200 text-xs">${row.user_id || 'N/A'}</div>
+              <div class="text-[11px] text-slate-500">${row.bank_account || ''}</div>
+            </td>
+            <td class="py-3 px-4 font-mono font-bold text-white">฿${Number(row.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+            <td class="py-3 px-4 text-center">${slipBtn}</td>
+            <td class="py-3 px-4">
+              <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ${badgeColor}">
+                ${row.status}
+              </span>
+            </td>
+            <td class="py-3 px-4 text-right">
+              ${row.status === "Pending" ? `
+                <button onclick="updateStatus(${row.rowIndex}, 'Approved')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[11px] font-semibold transition mr-1">อนุมัติ</button>
+                <button onclick="updateStatus(${row.rowIndex}, 'Rejected')" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-[11px] font-semibold transition">ปฏิเสธ</button>
+              ` : `<span class="text-[11px] text-slate-500 font-mono">เสร็จสิ้น</span>`}
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    async function updateStatus(rowIndex, status) {
+      if (!confirm(`ยืนยันการตั้งค่าสถานะเป็น: ${status}?`)) return;
+      try {
+        await fetch(GAS_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "update_status", rowIndex, status })
+        });
+        fetchData();
+      } catch (err) {
+        alert("บันทึกไม่สำเร็จ: " + err.message);
+      }
+    }
+
+    async function handleCreate(e) {
+      e.preventDefault();
+      const btn = document.getElementById("createSubmitBtn");
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...`;
+
+      const user_id = document.getElementById("new_user").value;
+      const amount = document.getElementById("new_amount").value;
+      const bank_account = document.getElementById("new_bank").value;
+      const fileInput = document.getElementById("new_slip");
+
+      let slip_base64 = "";
+      let slip_filename = "";
+
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        slip_filename = file.name;
+        slip_base64 = await toBase64(file);
+      }
+
+      try {
+        await fetch(GAS_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "create_transaction",
+            user_id,
+            amount,
+            bank_account,
+            slip_base64,
+            slip_filename
+          })
+        });
+        closeModal("createModal");
+        document.getElementById("createForm").reset();
+        fetchData();
+        navigate('transactions');
+      } catch (err) {
+        alert("เกิดข้อผิดพลาด: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "บันทึกเข้า Google Sheet";
+      }
+    }
+
+    function initQrCode() {
+      const qrContainer = document.getElementById("qrcode");
+      if (!qrContainer) return;
+      qrContainer.innerHTML = "";
+      new QRCode(qrContainer, {
+        text: "00020101021129370016A000000677010111011300668123456785802TH53037645406500.006304D12A",
+        width: 170,
+        height: 170,
+        colorDark: "#090d16",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+
+    async function handleCustomerUpload(e) {
+      e.preventDefault();
+      const btn = document.getElementById("cust_submit_btn");
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังส่งหลักฐานการโอน...`;
+
+      const user = document.getElementById("cust_name").value;
+      const fileInput = document.getElementById("cust_slip");
+      let slip_base64 = "";
+      let slip_filename = "";
+
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        slip_filename = file.name;
+        slip_base64 = await toBase64(file);
+      }
+
+      try {
+        await fetch(GAS_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "create_transaction",
+            user_id: user,
+            amount: 500.00,
+            bank_account: "PromptPay QR",
+            slip_base64,
+            slip_filename
+          })
+        });
+        alert("ส่งสลิปเรียบร้อยแล้ว! ข้อมูลบันทึกเข้า Google Sheet ทันที");
+        fetchData();
+        navigate('transactions');
+      } catch (err) {
+        alert("ส่งข้อมูลไม่สำเร็จ: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "แจ้งโอนเงินทันที (Submit Payment)";
+      }
+    }
+
+    function simulateWebhook() {
+      const res = document.getElementById("webhook_result");
+      res.classList.remove("hidden");
+      res.innerHTML = `ยิงสัญญาณ Webhook จำลองสำเร็จ (HTTP 200 OK)<br>Signature: sha256=9f82ab...<br>Payload: { "event": "transaction.approved", "amount": 500.00 }`;
+    }
+
+    function viewSlip(url) {
+      document.getElementById("slipImagePreview").src = url;
+      document.getElementById("slipOpenTab").href = url;
+      openModal("slipModal");
+    }
+
+    function openModal(id) { document.getElementById(id).classList.remove("hidden"); }
+    function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
+
+    const toBase64 = file => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  </script>
+</body>
+</html>
